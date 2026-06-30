@@ -1,11 +1,13 @@
 package logger
 
 import (
+	// "fmt"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-func NewLogger(env string) (*zap.Logger, error) {
+func SetupLogger(env string) (*zap.Logger, error) {
 	if env == "production" {
 		return zap.NewProduction()
 	}

@@ -1,28 +1,62 @@
 package main
 
 import (
+	"context"
 	"log"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 
 	"github.com/Wrehat/E-wallet-framework/internal/config"
+	"github.com/Wrehat/E-wallet-framework/internal/database"
 	"github.com/Wrehat/E-wallet-framework/pkg/logger"
 	"go.uber.org/zap"
 )
 
 func main() {
-
+	// Setup config untuk data environment
 	cfg := config.SetupConfig()
 
-	logger, err := logger.NewLogger(cfg.AppEnv)
+	// Setup logger untuk tracing
+	zapLog, err := logger.SetupLogger(cfg.AppEnv)
 	if err != nil {
-		log.Fatalf("Gagal inisialisasi logger: %v", err)
+		log.Fatalf("failed init logger : %v", err)
+	}
+	defer zapLog.Sync()
+
+	// Setup database
+	db, err := database.SetupDB(cfg.DbURI, zapLog)
+	if err != nil {
+		zapLog.Fatal("failed setup database", zap.Error(err))
+	}
+	sqlDb, err := db.DB()
+	if err == nil {
+		defer sqlDb.Close()
 	}
 
-	defer logger.Sync()
+	// Get signal for shutdown
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
-	logger.Info("Aplikasi E-Wallet berhasil berjalan!",
-		zap.String("APP_ENV", cfg.AppEnv),
-		zap.String("APP_PORT", cfg.AppPort),
-		zap.String("APP_GRPC_PORT", cfg.AppGrpcPort),
-	)
+	// Run server with waitgroup n goroutine
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		ServeGRPC(ctx, cfg, zapLog)
+	}()
 
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		ServeHTTP(ctx, cfg, zapLog)
+	}()
+
+	zapLog.Info("server running...")
+
+	// Wait for shutdown signal
+	<-ctx.Done()
+	wg.Wait()
+	zapLog.Info("server gracful shutdown.")
 }

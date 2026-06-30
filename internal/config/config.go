@@ -13,34 +13,36 @@ type AppConfig struct {
 	AppEnv      string `koanf:"APP_ENV"`
 	AppPort     string `koanf:"APP_PORT"`
 	AppGrpcPort string `koanf:"APP_GRPC_PORT"`
+	DbURI       string `koanf:"DB_URI"`
 }
 
 func SetupConfig() *AppConfig {
-	// Inisialisasi instance koanf
+	// Instance koanf
 	k := koanf.New(".")
 
-	// Load dari .env
+	// Read .env file
 	if err := k.Load(file.Provider(".env"), dotenv.Parser()); err != nil {
 		log.Println("error loading .env file : ", err)
 	}
 
-	// Load dari OS
+	// Read OS
 	if err := k.Load(env.Provider("", ".", func(s string) string {
 		return s
 	}), nil); err != nil {
-		log.Println("error loading env provider", err)
+		log.Println("error load env provider ", err)
 	}
 
-	// Set Default value
+	// Default value
 	config := AppConfig{
 		AppEnv:      "development",
 		AppPort:     "8080",
-		AppGrpcPort: "7000",
+		AppGrpcPort: "9090",
+		DbURI:       "user:password@tcp(127.0.0.1:3306)/ewallet?charset=utf8mb4&parseTime=True&loc=Local",
 	}
 
-	// Pindah data koanf ke struct go
+	// Unmarshal to struct go
 	if err := k.Unmarshal("", &config); err != nil {
-		log.Fatalf("Gagal memetakan konfigurasi: %v\n", err)
+		log.Fatalf("failed mapping config : %v", err)
 	}
 
 	return &config
