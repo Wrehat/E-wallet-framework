@@ -6,13 +6,24 @@ import (
 	"time"
 
 	"github.com/Wrehat/E-wallet-framework/internal/config"
+	"github.com/Wrehat/E-wallet-framework/internal/handler"
+	"github.com/Wrehat/E-wallet-framework/internal/repository"
+	"github.com/Wrehat/E-wallet-framework/internal/usecase"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
-func ServeHTTP(ctx context.Context, cfg *config.AppConfig, log *zap.Logger) {
+func ServeHTTP(ctx context.Context, cfg *config.AppConfig, log *zap.Logger, db *gorm.DB) {
+
+	hCheckRepo := repository.NewHealthRepo(db)
+	hCheckUc := usecase.NewHealthUsecase(hCheckRepo)
+	hCheckHndlr := handler.NewHealthHandler(hCheckUc)
+
 	r := gin.New()
 	r.Use(gin.Recovery())
+
+	r.GET("/health", hCheckHndlr.HealthCheck)
 
 	srv := &http.Server{
 		Addr:         ":" + cfg.AppPort,

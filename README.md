@@ -67,6 +67,7 @@ flowchart LR
 - [x] Database Connection Pooling & Ping Verification
 - [x] HTTP Server (Gin) & gRPC Server Implementation
 - [x] Graceful Shutdown (Signal, Context Cancellation, WaitGroup)
+- [x] Health Check Endpoint (HTTP GET /health) with DB Ping
 
 ---
 

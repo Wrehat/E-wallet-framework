@@ -50,7 +50,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		ServeHTTP(ctx, cfg, zapLog)
+		ServeHTTP(ctx, cfg, zapLog, db)
 	}()
 
 	zapLog.Info("server running...")
@@ -59,4 +59,5 @@ func main() {
 	<-ctx.Done()
 	wg.Wait()
 	zapLog.Info("server gracful shutdown.")
+
 }
