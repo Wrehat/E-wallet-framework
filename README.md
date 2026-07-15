@@ -1,5 +1,9 @@
 # E-Wallet Framework (Golang)
 
+![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat-square&logo=go&logoColor=white)
+![Architecture](https://img.shields.io/badge/Architecture-Clean-orange?style=flat-square)
+![Microservices](https://img.shields.io/badge/Microservices-UMS%20%7C%20Wallet%20%7C%20Tx-blue?style=flat-square)
+
 A production-ready Backend Framework for an E-Wallet application built in Go. This repository serves as a live progress tracker for building a robust, scalable, and enterprise-grade backend system.
 
 ## 🏗️ System Architecture
@@ -69,17 +73,24 @@ flowchart LR
 - [x] Graceful Shutdown (Signal, Context Cancellation, WaitGroup)
 - [x] Health Check Endpoint (HTTP GET /health) with DB Ping
 
+**User Management Service (UMS)**
+- [x] DB Migration, Register & Password Hashing (Bcrypt)
+- [x] Login JWT & Session DB Storage
+- [x] Logout Mechanism & Auth Middleware
+- [x] Refresh Token Sync & Session Sync
+- [x] Internal Token Validation Server (gRPC)
+
 ---
 
 ### 🎯 Target Selanjutnya (Up Next)
 
-**User Management Service (UMS)**
-- [ ] Setup Github & DB
-- [ ] API Register
-- [ ] API Login JWT
-- [ ] Middleware JWT & Logout
-- [ ] Refresh Token
-- [ ] Validasi Token (gRPC Server)
+**Wallet Service**
+- [ ] Setup Repository & DB Connection
+- [ ] API Create Wallet (Dipanggil UMS Pasca-Register)
+- [ ] API Credit Balance
+- [ ] API Debit Balance
+- [ ] API Get Balance
+- [ ] API Wallet History (Log Transaksi)
 
 ---
 
